@@ -41,12 +41,11 @@
 <div id="error" class="error"></div>
 
 <script>
-  const slug = urlParams.get("slug")?.trim().toLowerCase();
+  // 1. Get URL params
   const urlParams = new URLSearchParams(window.location.search);
-  const slug = urlParams.get("slug");
+  const slug = urlParams.get("slug")?.trim().toLowerCase(); // trim and lowercase
 
-
- 
+  // 2. Station name mapping
   const stationNames = {
     solapur: "Solapur, Maharashtra",
     mumbai: "Mumbai, Maharashtra",
@@ -63,7 +62,6 @@
   if (!slug) {
     document.getElementById("error").innerText = "❌ No station slug provided in the URL!";
   } else {
-    // 3. Fetch station data dynamically
     const dataUrl = `https://raw.githubusercontent.com/zerobosatsu/map/main/data/${slug}.json`;
 
     fetch(dataUrl)
@@ -72,17 +70,14 @@
         return res.json();
       })
       .then(data => {
-        // Use name from JSON if available, otherwise fallback to mapping
+        // Use JSON name if exists, else fallback to mapping
         const stationDisplayName = data.name || stationNames[slug] || slug;
-
-        // Update title
         document.getElementById("stationTitle").innerText = stationDisplayName + " Dashboard";
 
-        // Prepare chart data
+        // Chart data
         const labels = data.history.map(d => d.date);
         const values = data.history.map(d => d.level);
 
-        // 4. Create Chart
         const ctx = document.getElementById("waterChart").getContext("2d");
         new Chart(ctx, {
           type: "line",
@@ -103,9 +98,7 @@
               legend: { position: "top" },
               title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
             },
-            scales: {
-              y: { beginAtZero: true }
-            }
+            scales: { y: { beginAtZero: true } }
           }
         });
       })
