@@ -1,63 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Water Level Map - India</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>India Water Monitoring Map</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
   <style>
-    #map { height: 100vh; width: 100%; }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    .popup-link {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 8px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .popup-link:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
-<div id="map"></div>
+  <div id="map"></div>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Initialize map
+    const map = L.map("map").setView([23.5, 80], 5); // Center India
 
-<script>
-  // Initialize map centered roughly in India
-  var map = L.map('map').setView([22.0, 78.0], 5);
+    // Add OpenStreetMap tile layer
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    }).addTo(map);
 
-  // OpenStreetMap tiles
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19
-  }).addTo(map);
+    // Load station data from stations.json
+    fetch("stations.json")
+      .then((res) => res.json())
+      .then((stations) => {
+        stations.forEach((station) => {
+          const marker = L.marker([station.lat, station.lon]).addTo(map);
 
-  // Function to choose marker color based on water level
-  function getColor(level) {
-    return level < 30 ? 'red' :
-           level < 60 ? 'orange' :
-                        'green';
-  }
-
-  // Fetch station data from GitHub JSON
-  fetch('https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json')
-    .then(response => response.json())
-    .then(stations => {
-     stations.forEach(s => {
-  var marker = L.circleMarker([s.lat, s.lon], {
-    color: getColor(s.level),
-    fillColor: getColor(s.level),
-    fillOpacity: 0.7,
-    radius: 10
-  }).addTo(map);
-
-  // ✅ Popup with link to dynamic dashboard
-  marker.bindPopup(`
-    <b>${s.name}</b><br>
-    Water Level: ${s.level}<br>
-    <a href="dashboard.html?station=${s.slug}" target="_blank">View Dashboard</a>
-  `);
-});
-
-      });
-    })
-    .catch(err => console.error("Error loading stations JSON:", err));
-</script>
+          // Popup with station info + dashboard link
+          const popupContent = `
+            <b>${station.name}</b><br/>
+            Water Level: ${station.level} m<br/>
+            <a class="popup-link" href="dashboard.html?station=${station.slug}" target="_blank">
+              View Dashboard
+            </a>
+          `;
+          marker.bindPopup(popupContent);
+        });
+      })
+      .catch((err) => console.error("Error loading stations.json:", err));
+  </script>
 </body>
 </html>
-
