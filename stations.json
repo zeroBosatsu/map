@@ -1,12 +1,12 @@
 [
-  {"name": "Solapur, Maharashtra", "lat": 17.6599, "lon": 75.9064, "level": 28},
-  {"name": "Mumbai, Maharashtra", "lat": 19.0760, "lon": 72.8777, "level": 55},
-  {"name": "Delhi (New Delhi)", "lat": 28.6139, "lon": 77.2090, "level": 65},
-  {"name": "Dehradun, Uttarakhand", "lat": 30.3165, "lon": 78.0322, "level": 40},
-  {"name": "Chennai, Tamil Nadu", "lat": 13.0827, "lon": 80.2707, "level": 20},
-  {"name": "Kolkata, West Bengal", "lat": 22.5726, "lon": 88.3639, "level": 50},
-  {"name": "Guwahati, Assam", "lat": 26.1445, "lon": 91.7362, "level": 35},
-  {"name": "Lucknow, Uttar Pradesh", "lat": 26.8467, "lon": 80.9462, "level": 35},
-  {"name": "Bhopal, Madhya Pradesh", "lat": 23.2599, "lon": 77.4126, "level": 45},
-  {"name": "Ahmedabad, Gujarat", "lat": 23.0225, "lon": 72.5714, "level": 55}
+  {"name": "Solapur, Maharashtra", "lat": 17.6599, "lon": 75.9064, "level": 28,"slug":"solapur"},
+  {"name": "Mumbai, Maharashtra", "lat": 19.0760, "lon": 72.8777, "level": 55,"slug":"mumbai"},
+  {"name": "Delhi (New Delhi)", "lat": 28.6139, "lon": 77.2090, "level": 65,"slug":"delhi"},
+  {"name": "Dehradun, Uttarakhand", "lat": 30.3165, "lon": 78.0322, "level": 40,"slug":"dehradun"},
+  {"name": "Chennai, Tamil Nadu", "lat": 13.0827, "lon": 80.2707, "level": 20,"slug":"chennai"},
+  {"name": "Kolkata, West Bengal", "lat": 22.5726, "lon": 88.3639, "level": 50,"slug":"kolkata"},
+  {"name": "Guwahati, Assam", "lat": 26.1445, "lon": 91.7362, "level": 35,"slug":"assam"},
+  {"name": "Lucknow, Uttar Pradesh", "lat": 26.8467, "lon": 80.9462, "level": 35,"slug":"lucknow"},
+  {"name": "Bhopal, Madhya Pradesh", "lat": 23.2599, "lon": 77.4126, "level": 45,"slug":"bhopal"},
+  {"name": "Ahmedabad, Gujarat", "lat": 23.0225, "lon": 72.5714, "level": 55,"slug":"amhedabad"}
 ]
