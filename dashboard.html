@@ -10,22 +10,22 @@
     h2 { color: #333; }
     #chartContainer { width: 100%; max-width: 800px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .error { color: red; font-weight: bold; }
-    #lastLevel { font-size: 18px; margin-top: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
 
 <h2 id="stationTitle">Loading...</h2>
-<div id="lastLevel"></div>
 <div id="chartContainer">
   <canvas id="waterChart"></canvas>
 </div>
 <div id="error" class="error"></div>
 
 <script>
+  // 1. Get slug from URL
   const urlParams = new URLSearchParams(window.location.search);
   const slug = (urlParams.get("slug") || "").trim().toLowerCase();
 
+  // 2. Station name fallback
   const stationNames = {
     solapur: "Solapur, Maharashtra",
     mumbai: "Mumbai, Maharashtra",
@@ -40,78 +40,58 @@
   };
 
   if (!slug) {
-    document.getElementById("error").innerText = "❌ No station slug provided!";
+    document.getElementById("error").innerText = "❌ No station slug provided in the URL!";
   } else {
     const dataUrl = `https://raw.githubusercontent.com/zerobosatsu/map/main/data/${slug}.json`;
 
     fetch(dataUrl)
-      .then(res => res.ok ? res.json() : Promise.reject("Station data not found"))
+      .then(res => {
+        if (!res.ok) throw new Error("404: Station data not found");
+        return res.json();
+      })
       .then(data => {
-        if (!data.history || data.history.length === 0) {
-          throw "No history data available!";
-        }
-
         const stationDisplayName = data.name || stationNames[slug] || slug;
         document.getElementById("stationTitle").innerText = stationDisplayName + " Dashboard";
 
-        // Filter numeric levels
-        const filtered = data.history.filter(d => !isNaN(Number(d.level)));
-        const labels = filtered.map(d => d.date);
-        const values = filtered.map(d => Number(d.level));
+        const labels = data.history.map(d => d.date);
+        const values = data.history.map(d => d.level);
 
-        if (values.length === 0) throw "No valid numeric water levels!";
-
-        // Last recorded level
-        const lastLevel = values[values.length - 1];
-        const lastDate = labels[labels.length - 1];
-        document.getElementById("lastLevel").innerText = `Last Recorded Water Level: ${lastLevel} m (on ${lastDate})`;
-
+        // Y-axis buffer
         const minLevel = Math.min(...values);
         const maxLevel = Math.max(...values);
         const yMin = Math.floor(minLevel - 5);
         const yMax = Math.ceil(maxLevel + 5);
 
-       // Prepare point colors
-const pointColors = values.map(v => {
-  if (v < 30) return "red";
-  if (v < 60) return "orange";
-  return "green";
-});
-
-const ctx = document.getElementById("waterChart").getContext("2d");
-new Chart(ctx, {
-  type: "line",
-  data: {
-    labels: labels,
-    datasets: [{
-      label: "Water Level (m)",
-      data: values,
-      borderColor: "blue", // line color
-      backgroundColor: "rgba(0,123,255,0.3)",
-      fill: true,
-      tension: 0.2,
-      pointBackgroundColor: pointColors, // colors each point based on value
-      pointRadius: 6
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { position: "top" },
-      title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
-    },
-    scales: {
-      y: {
-        beginAtZero: false,
-        min: yMin,
-        max: yMax
-      }
-    }
-  }
-});
-
-
+        const ctx = document.getElementById("waterChart").getContext("2d");
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Water Level (m)",
+              data: values,
+              borderColor: "blue",
+              backgroundColor: "rgba(0,123,255,0.3)",
+              fill: true,
+              tension: 0.2
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: "top" },
+              title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
+            },
+            scales: { y: { beginAtZero: false, min: yMin, max: yMax } }
+          }
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("error").innerText = "⚠️ Failed to load station data.";
+      });
   }
 </script>
+
 </body>
 </html>
