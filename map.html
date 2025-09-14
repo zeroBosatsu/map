@@ -23,44 +23,43 @@
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
-  // Initialize map
-  const map = L.map('map').setView([22.0, 78.0], 5);
+  var map = L.map('map').setView([22.0, 78.0], 5);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // Color coding by water level
   function getColor(level) {
-    return level < 30 ? 'red' : level < 60 ? 'orange' : 'green';
+    return level < 30 ? 'red' :
+           level < 60 ? 'orange' :
+                        'green';
   }
 
   fetch("https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json")
-    .then(res => res.json())
+    .then(response => response.json())
     .then(stations => {
       stations.forEach(s => {
-        const level = s.level;
-
-        const marker = L.circleMarker([s.lat, s.lon], {
-          color: getColor(level),
-          fillColor: getColor(level),
+        // Add marker
+        var marker = L.circleMarker([s.lat, s.lon], {
+          color: getColor(s.level),
+          fillColor: getColor(s.level),
           fillOpacity: 0.7,
           radius: 10
         }).addTo(map);
 
-        // Add popup with button
+        // Bind popup
         marker.bindPopup(`
           <b>${s.name}</b><br>
-          Water Level: ${level} m<br>
+          Water Level: ${s.level} m<br>
           <button class="popup-button" id="btn-${s.slug}">📊 Open Dashboard</button>
         `);
 
-        // Attach click handler when popup opens
-        marker.on('popupopen', function(e) {
-          const popupEl = e.popup.getElement();
-          const btn = popupEl.querySelector(`#btn-${s.slug}`);
+        // Add click handler for the button after popup is opened
+        marker.on('popupopen', function() {
+          const btn = document.getElementById(`btn-${s.slug}`);
           if (btn) {
             btn.onclick = () => {
               window.location.href = `dashboard.html?slug=${encodeURIComponent(s.slug)}`;
