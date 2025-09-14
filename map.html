@@ -25,6 +25,7 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
+  // Initialize map
   var map = L.map('map').setView([22.0, 78.0], 5);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -32,34 +33,39 @@
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
+  // Color coding based on water level
   function getColor(level) {
     return level < 30 ? 'red' :
            level < 60 ? 'orange' :
                         'green';
   }
 
+  // Fetch stations data
   fetch("https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json")
-    .then(response => response.json())
+    .then(res => res.json())
     .then(stations => {
       stations.forEach(s => {
-        // Add marker
+        const level = s.level;
+
+        // Add colored marker
         var marker = L.circleMarker([s.lat, s.lon], {
-          color: getColor(s.level),
-          fillColor: getColor(s.level),
+          color: getColor(level),
+          fillColor: getColor(level),
           fillOpacity: 0.7,
           radius: 10
         }).addTo(map);
 
-        // Bind popup
+        // Bind popup with button
         marker.bindPopup(`
           <b>${s.name}</b><br>
-          Water Level: ${s.level} m<br>
-          <button class="popup-button" id="btn-${s.slug}">📊 Open Dashboard</button>
+          Water Level: ${level} m<br>
+          <button class="popup-button">📊 Open Dashboard</button>
         `);
 
-        // Add click handler for the button after popup is opened
-        marker.on('popupopen', function() {
-          const btn = document.getElementById(`btn-${s.slug}`);
+        // Attach button click after popup opens
+        marker.on('popupopen', function(e) {
+          const popupNode = e.popup.getElement(); // Current popup DOM
+          const btn = popupNode.querySelector('.popup-button'); // Find the button
           if (btn) {
             btn.onclick = () => {
               window.location.href = `dashboard.html?slug=${encodeURIComponent(s.slug)}`;
