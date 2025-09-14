@@ -71,37 +71,39 @@
         const yMin = Math.floor(minLevel - 5);
         const yMax = Math.ceil(maxLevel + 5);
 
-        const ctx = document.getElementById("waterChart").getContext("2d");
+       const ctx = document.getElementById("waterChart").getContext("2d");
 
-        new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: labels,
-            datasets: [{
-              label: "Water Level (m)",
-              data: values,
-              fill: true,
-              tension: 0.2,
-              borderColor: "blue",
-              backgroundColor: "rgba(0,123,255,0.1)",
-              pointBackgroundColor: values.map(v => v < 30 ? "red" : v < 60 ? "orange" : "green"),
-              pointRadius: 5
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { position: "top" },
-              title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
-            },
-            scales: { y: { beginAtZero: false, min: yMin, max: yMax } }
-          }
-        });
-      })
-      .catch(err => {
-        console.error(err);
-        document.getElementById("error").innerText = "⚠️ Failed to load station data or invalid data!";
-      });
+new Chart(ctx, {
+  type: "line",
+  data: {
+    labels: labels,
+    datasets: [{
+      label: "Water Level (m)",
+      data: values,
+      borderColor: "blue", // fallback
+      backgroundColor: "rgba(0,123,255,0.3)",
+      fill: true,
+      tension: 0.2,
+      segment: {
+        borderColor: ctx => {
+          const val = values[ctx.p0DataIndex];
+          if (val < 30) return "red";
+          if (val < 60) return "orange";
+          return "green";
+        }
+      }
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" },
+      title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
+    },
+    scales: { y: { beginAtZero: false, min: yMin, max: yMax } }
+  }
+});
+
   }
 </script>
 </body>
