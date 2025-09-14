@@ -1,80 +1,125 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Water Level Map</title>
-  <meta charset="utf-8" />
+  <title>Station Dashboard</title>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-    #map { height: 100vh; width: 100%; }
-    .popup-button {
-      margin-top: 5px;
-      padding: 5px 8px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    h2 {
+      color: #333;
+    }
+    #chartContainer {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .error {
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-<div id="map"></div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<h2 id="stationTitle">Loading...</h2>
+<div id="chartContainer">
+  <canvas id="waterChart"></canvas>
+</div>
+<div id="error" class="error"></div>
 
 <script>
-  // Initialize map
-  var map = L.map('map').setView([22.0, 78.0], 5);
+  // 1. Get URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const slug = urlParams.get("slug")?.trim().toLowerCase(); // trim and lowercase
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
+  // 2. Station name mapping
+  const stationNames = {
+    solapur: "Solapur, Maharashtra",
+    mumbai: "Mumbai, Maharashtra",
+    delhi: "Delhi (New Delhi)",
+    dehradun: "Dehradun, Uttarakhand",
+    chennai: "Chennai, Tamil Nadu",
+    kolkata: "Kolkata, West Bengal",
+    guwahati: "Guwahati, Assam",
+    lucknow: "Lucknow, Uttar Pradesh",
+    bhopal: "Bhopal, Madhya Pradesh",
+    ahmedabad: "Ahmedabad, Gujarat"
+  };
 
-  // Color coding based on water level
-  function getColor(level) {
-    return level < 30 ? 'red' :
-           level < 60 ? 'orange' :
-                        'green';
-  }
+  if (!slug) {
+    document.getElementById("error").innerText = "❌ No station slug provided in the URL!";
+  } else {
+    const dataUrl = `https://raw.githubusercontent.com/zerobosatsu/map/main/data/${slug}.json`;
 
-  // Fetch stations data
-  fetch("https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json")
-    .then(res => res.json())
-    .then(stations => {
-      stations.forEach(s => {
-        // Use the last water level from the station JSON
-        const level = s.level;
+    fetch(dataUrl)
+      .then(res => {
+        if (!res.ok) throw new Error("404: Station data not found");
+        return res.json();
+      })
+      .then(data => {
+        // Use JSON name if exists, else fallback to mapping
+        const stationDisplayName = data.name || stationNames[slug] || slug;
+        document.getElementById("stationTitle").innerText = stationDisplayName + " Dashboard";
 
-        // Add colored marker
-        var marker = L.circleMarker([s.lat, s.lon], {
-          color: getColor(level),
-          fillColor: getColor(level),
-          fillOpacity: 0.7,
-          radius: 10
-        }).addTo(map);
+        // Chart data
+        const labels = data.history.map(d => d.date);
+        const values = data.history.map(d => d.level);
 
-        // Bind popup with button
-        marker.bindPopup(`
-          <b>${s.name}</b><br>
-          Water Level: ${level} m<br>
-          <button class="popup-button" id="btn-${s.slug}">📊 Open Dashboard</button>
-        `);
+        // Calculate Y-axis min/max with buffer
+        const minLevel = Math.min(...values);
+        const maxLevel = Math.max(...values);
+        const yMin = Math.floor(minLevel - 5);
+        const yMax = Math.ceil(maxLevel + 5);
 
-        // Attach button click after popup opens
-        marker.on('popupopen', function() {
-          const btn = document.getElementById(`btn-${s.slug}`);
-          if (btn) {
-            btn.onclick = () => {
-              window.location.href = `dashboard.html?slug=${encodeURIComponent(s.slug)}`;
-            };
+        const ctx = document.getElementById("waterChart").getContext("2d");
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Water Level (m)",
+              data: values,
+              borderColor: "blue",
+              backgroundColor: "rgba(0, 123, 255, 0.3)",
+              fill: true,
+              tension: 0.2
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: "top" },
+              title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
+            },
+            scales: {
+              y: {
+                beginAtZero: false,
+                min: yMin,
+                max: yMax
+              }
+            }
           }
         });
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("error").innerText = "⚠️ Failed to load station data.";
       });
-    })
-    .catch(err => console.error("Error loading stations:", err));
+  }
 </script>
+
 </body>
 </html>
