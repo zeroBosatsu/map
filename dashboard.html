@@ -23,11 +23,9 @@
 <div id="error" class="error"></div>
 
 <script>
-  // 1. Get slug from URL
   const urlParams = new URLSearchParams(window.location.search);
   const slug = (urlParams.get("slug") || "").trim().toLowerCase();
 
-  // 2. Fallback for station names
   const stationNames = {
     solapur: "Solapur, Maharashtra",
     mumbai: "Mumbai, Maharashtra",
@@ -47,30 +45,33 @@
     const dataUrl = `https://raw.githubusercontent.com/zerobosatsu/map/main/data/${slug}.json`;
 
     fetch(dataUrl)
-      .then(res => {
-        if (!res.ok) throw new Error("404: Station data not found");
-        return res.json();
-      })
+      .then(res => res.ok ? res.json() : Promise.reject("Station data not found"))
       .then(data => {
         const stationDisplayName = data.name || stationNames[slug] || slug;
         document.getElementById("stationTitle").innerText = stationDisplayName + " Dashboard";
 
-        // Convert levels to numbers
-        const labels = data.history.map(d => d.date);
-        const values = data.history.map(d => Number(d.level));
+        // Sanitize data
+        const filteredHistory = data.history.filter(d => d.level !== null && d.level !== undefined);
+        const labels = filteredHistory.map(d => d.date);
+        const values = filteredHistory.map(d => Number(d.level));
 
-        // Display last recorded level
+        if (values.length === 0) {
+          document.getElementById("error").innerText = "⚠️ No valid water level data available!";
+          return;
+        }
+
+        // Last recorded level
         const lastLevel = values[values.length - 1];
         const lastDate = labels[labels.length - 1];
         document.getElementById("lastLevel").innerText = `Last Recorded Water Level: ${lastLevel} m (on ${lastDate})`;
 
-        // Y-axis buffer
         const minLevel = Math.min(...values);
         const maxLevel = Math.max(...values);
         const yMin = Math.floor(minLevel - 5);
         const yMax = Math.ceil(maxLevel + 5);
 
         const ctx = document.getElementById("waterChart").getContext("2d");
+
         new Chart(ctx, {
           type: "line",
           data: {
