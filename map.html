@@ -38,18 +38,26 @@
   fetch('https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json')
     .then(response => response.json())
     .then(stations => {
-      stations.forEach(s => {
-        var marker = L.circleMarker([s.lat, s.lon], {
-          color: getColor(s.level),
-          fillColor: getColor(s.level),
-          fillOpacity: 0.7,
-          radius: 10
-        }).addTo(map);
+     stations.forEach(s => {
+  var marker = L.circleMarker([s.lat, s.lon], {
+    color: getColor(s.level),
+    fillColor: getColor(s.level),
+    fillOpacity: 0.7,
+    radius: 10
+  }).addTo(map);
 
-        marker.bindPopup("<b>" + s.name + "</b><br>Water Level: " + s.level);
+  // ✅ Popup with link to dynamic dashboard
+  marker.bindPopup(`
+    <b>${s.name}</b><br>
+    Water Level: ${s.level}<br>
+    <a href="dashboard.html?station=${s.slug}" target="_blank">View Dashboard</a>
+  `);
+});
+
       });
     })
     .catch(err => console.error("Error loading stations JSON:", err));
 </script>
 </body>
 </html>
+
