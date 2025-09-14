@@ -41,11 +41,12 @@
 <div id="error" class="error"></div>
 
 <script>
-  // 1. Get slug from URL
+  const slug = urlParams.get("slug")?.trim().toLowerCase();
   const urlParams = new URLSearchParams(window.location.search);
   const slug = urlParams.get("slug");
 
-  // 2. Add station name mapping
+
+ 
   const stationNames = {
     solapur: "Solapur, Maharashtra",
     mumbai: "Mumbai, Maharashtra",
