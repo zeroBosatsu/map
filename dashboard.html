@@ -16,7 +16,7 @@
 <body>
 
 <h2 id="stationTitle">Loading...</h2>
-<p id="lastLevel">Loading latest water level...</p>
+<p id="lastLevel"></p>
 <div id="chartContainer">
   <canvas id="waterChart"></canvas>
 </div>
@@ -46,19 +46,23 @@
 
     fetch(dataUrl)
       .then(res => {
-        if (!res.ok) throw new Error("404: Station data not found");
+        if (!res.ok) throw new Error(`404: Station data not found for slug "${slug}"`);
         return res.json();
       })
       .then(data => {
         const stationDisplayName = data.name || stationNames[slug] || slug;
         document.getElementById("stationTitle").innerText = stationDisplayName + " Dashboard";
 
+        if (!data.history || data.history.length === 0) {
+          throw new Error("No history data available");
+        }
+
         const labels = data.history.map(d => d.date);
         const values = data.history.map(d => d.level);
 
-        // Display last recorded water level
+        // Show last recorded water level
         const lastEntry = data.history[data.history.length - 1];
-        document.getElementById("lastLevel").innerText = 
+        document.getElementById("lastLevel").innerText =
           `Last Time Recorded Water Level: ${lastEntry.level} m on ${lastEntry.date}`;
 
         // Y-axis buffer
@@ -70,22 +74,22 @@
         const ctx = document.getElementById("waterChart").getContext("2d");
         new Chart(ctx, {
           type: "line",
-          data: {
-            labels: labels,
-            datasets: [{
-              label: "Water Level (m)",
-              data: values,
-              borderColor: "blue",
-              backgroundColor: "rgba(0,123,255,0.3)",
-              fill: true,
-              tension: 0.2
-            }]
+          data: { 
+            labels, 
+            datasets: [{ 
+              label: "Water Level (m)", 
+              data: values, 
+              borderColor: "blue", 
+              backgroundColor: "rgba(0,123,255,0.3)", 
+              fill: true, 
+              tension: 0.2 
+            }] 
           },
           options: {
             responsive: true,
-            plugins: {
-              legend: { position: "top" },
-              title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
+            plugins: { 
+              legend: { position: "top" }, 
+              title: { display: true, text: `Water Level Trends for ${stationDisplayName}` } 
             },
             scales: { y: { beginAtZero: false, min: yMin, max: yMax } }
           }
@@ -93,7 +97,7 @@
       })
       .catch(err => {
         console.error(err);
-        document.getElementById("error").innerText = "⚠️ Failed to load station data.";
+        document.getElementById("error").innerText = `⚠️ Failed to load station data: ${err.message}`;
       });
   }
 </script>
