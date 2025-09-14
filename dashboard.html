@@ -7,7 +7,42 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-    h2 { color: #333; }
+    h2 { color: #333; }const ctx = document.getElementById("waterChart").getContext("2d");
+
+new Chart(ctx, {
+  type: "line",
+  data: {
+    labels: labels,
+    datasets: [{
+      label: "Water Level (m)",
+      data: values,
+      fill: true,
+      backgroundColor: "rgba(0,123,255,0.1)",
+      borderColor: "blue",
+      tension: 0.2,
+      segment: {
+        borderColor: ctx => {
+          const val = ctx.p0.parsed.y;
+          if (val < 30) return "red";
+          if (val < 60) return "orange";
+          return "green";
+        }
+      },
+      pointBackgroundColor: values.map(v => v < 30 ? "red" : v < 60 ? "orange" : "green")
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" },
+      title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
+    },
+    scales: {
+      y: { beginAtZero: false, min: yMin, max: yMax }
+    }
+  }
+});
+
     #lastLevel { font-weight: bold; margin-bottom: 10px; }
     #chartContainer { width: 100%; max-width: 800px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .error { color: red; font-weight: bold; }
