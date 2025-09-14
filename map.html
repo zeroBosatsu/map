@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Water Level Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  
+  <style>
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  // Initialize map
+  var map = L.map('map').setView([19.08, 72.88], 12);
+
+  // OpenStreetMap tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
+  }).addTo(map);
+
+  // Station data
+  var stations = [
+    {name:"Station A", lat:19.07, lon:72.87, level:25},
+    {name:"Station B", lat:19.10, lon:72.90, level:45},
+    {name:"Station C", lat:19.12, lon:72.92, level:70}
+  ];
+
+  // Function to choose color based on water level
+  function getColor(level) {
+    return level < 30 ? 'red' :
+           level < 60 ? 'orange' :
+                        'green';
+  }
+
+  // Add markers
+  stations.forEach(s => {
+    var marker = L.circleMarker([s.lat, s.lon], {
+      color: getColor(s.level),
+      fillColor: getColor(s.level),
+      fillOpacity: 0.7,
+      radius: 10
+    }).addTo(map);
+    
+    marker.bindPopup("<b>" + s.name + "</b><br>Water Level: " + s.level);
+  });
+</script>
+</body>
+</html>
