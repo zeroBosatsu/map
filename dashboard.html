@@ -1,20 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Station Dashboard</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-    h2 { color: #333; }
-    #chartContainer { width: 100%; max-width: 800px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    .error { color: red; font-weight: bold; }
-  </style>
-</head>
-<body>
-
 <h2 id="stationTitle">Loading...</h2>
+<p id="lastLevel">Loading latest water level...</p>
 <div id="chartContainer">
   <canvas id="waterChart"></canvas>
 </div>
@@ -25,7 +10,6 @@
   const urlParams = new URLSearchParams(window.location.search);
   const slug = (urlParams.get("slug") || "").trim().toLowerCase();
 
-  // 2. Station name fallback
   const stationNames = {
     solapur: "Solapur, Maharashtra",
     mumbai: "Mumbai, Maharashtra",
@@ -55,6 +39,11 @@
 
         const labels = data.history.map(d => d.date);
         const values = data.history.map(d => d.level);
+
+        // Display last recorded water level
+        const lastEntry = data.history[data.history.length - 1];
+        document.getElementById("lastLevel").innerText = 
+          `Last Time Recorded Water Level: ${lastEntry.level} m on ${lastEntry.date}`;
 
         // Y-axis buffer
         const minLevel = Math.min(...values);
@@ -92,6 +81,3 @@
       });
   }
 </script>
-
-</body>
-</html>
