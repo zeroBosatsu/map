@@ -6,6 +6,7 @@
   {"name": "Chennai, Tamil Nadu", "lat": 13.0827, "lon": 80.2707, "level": 20},
   {"name": "Kolkata, West Bengal", "lat": 22.5726, "lon": 88.3639, "level": 50},
   {"name": "Guwahati, Assam", "lat": 26.1445, "lon": 91.7362, "level": 35},
-  {"name": "Jaipur, Rajasthan", "lat": 26.9124, "lon": 75.7873, "level": 60},
-  {"name": "Chandigarh, Punjab", "lat": 30.7333, "lon": 76.7794, "level": 45}
+  {"name": "Lucknow, Uttar Pradesh", "lat": 26.8467, "lon": 80.9462, "level": 35},
+  {"name": "Bhopal, Madhya Pradesh", "lat": 23.2599, "lon": 77.4126, "level": 45},
+  {"name": "Ahmedabad, Gujarat", "lat": 23.0225, "lon": 72.5714, "level": 55},
 ]
