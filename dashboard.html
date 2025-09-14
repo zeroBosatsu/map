@@ -41,9 +41,9 @@
 <div id="error" class="error"></div>
 
 <script>
-  // 1. Get URL params
+  // 1. Get slug from URL
   const urlParams = new URLSearchParams(window.location.search);
-  const slug = urlParams.get("slug")?.trim().toLowerCase(); // trim and lowercase
+  const slug = urlParams.get("slug")?.trim().toLowerCase();
 
   // 2. Station name mapping
   const stationNames = {
@@ -70,15 +70,15 @@
         return res.json();
       })
       .then(data => {
-        // Use JSON name if exists, else fallback to mapping
+        // Use JSON name if available, fallback to mapping
         const stationDisplayName = data.name || stationNames[slug] || slug;
         document.getElementById("stationTitle").innerText = stationDisplayName + " Dashboard";
 
-        // Chart data
+        // Prepare chart data
         const labels = data.history.map(d => d.date);
         const values = data.history.map(d => d.level);
 
-        // Calculate Y-axis min/max with buffer
+        // Calculate Y-axis min/max with buffer for better spacing
         const minLevel = Math.min(...values);
         const maxLevel = Math.max(...values);
         const yMin = Math.floor(minLevel - 5);
@@ -108,7 +108,8 @@
               y: {
                 beginAtZero: false,
                 min: yMin,
-                max: yMax
+                max: yMax,
+                ticks: { stepSize: 5 } // optional, for evenly spaced ticks
               }
             }
           }
