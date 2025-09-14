@@ -30,10 +30,20 @@
       color: red;
       font-weight: bold;
     }
+    #backButton {
+      margin: 10px 0;
+      padding: 8px 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
+<button id="backButton" onclick="window.history.back()">⬅ Back to Map</button>
 <h2 id="stationTitle">Loading...</h2>
 <div id="chartContainer">
   <canvas id="waterChart"></canvas>
@@ -41,11 +51,9 @@
 <div id="error" class="error"></div>
 
 <script>
-  // Get slug from URL
   const urlParams = new URLSearchParams(window.location.search);
   const slug = (urlParams.get("slug") || "").trim().toLowerCase();
 
-  // Mapping fallback for station names
   const stationNames = {
     solapur: "Solapur, Maharashtra",
     mumbai: "Mumbai, Maharashtra",
@@ -70,26 +78,23 @@
         return res.json();
       })
       .then(data => {
-        // Station name
         const stationDisplayName = data.name || stationNames[slug] || slug;
         document.getElementById("stationTitle").innerText = stationDisplayName + " Dashboard";
 
-        // Prepare chart data
         const labels = data.history.map(d => d.date);
         const values = data.history.map(d => d.level);
 
-        // Dynamic Y-axis range with padding
+        // Add Y-axis padding
         const minLevel = Math.min(...values);
         const maxLevel = Math.max(...values);
         const yMin = Math.floor(minLevel - 5);
         const yMax = Math.ceil(maxLevel + 5);
 
-        // Create chart
         const ctx = document.getElementById("waterChart").getContext("2d");
         new Chart(ctx, {
           type: "line",
           data: {
-            labels: labels,
+            labels,
             datasets: [{
               label: "Water Level (m)",
               data: values,
