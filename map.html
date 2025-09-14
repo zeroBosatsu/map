@@ -27,19 +27,6 @@
     maxZoom: 19
   }).addTo(map);
 
-  // Station data for Indian locations with water levels
-  var stations = [
-    {"name": "Solapur, Maharashtra", "lat": 17.6599, "lon": 75.9064, "level": 28},
-    {"name": "Mumbai, Maharashtra", "lat": 19.0760, "lon": 72.8777, "level": 55},
-    {"name": "Delhi (New Delhi)", "lat": 28.6139, "lon": 77.2090, "level": 65},
-    {"name": "Dehradun, Uttarakhand", "lat": 30.3165, "lon": 78.0322, "level": 40},
-    {"name": "Chennai, Tamil Nadu", "lat": 13.0827, "lon": 80.2707, "level": 20},
-    {"name": "Kolkata, West Bengal", "lat": 22.5726, "lon": 88.3639, "level": 50},
-    {"name": "Guwahati, Assam", "lat": 26.1445, "lon": 91.7362, "level": 35},
-    {"name": "Jaipur, Rajasthan", "lat": 26.9124, "lon": 75.7873, "level": 60},
-    {"name": "Chandigarh, Punjab", "lat": 30.7333, "lon": 76.7794, "level": 45}
-  ];
-
   // Function to choose marker color based on water level
   function getColor(level) {
     return level < 30 ? 'red' :
@@ -47,17 +34,22 @@
                         'green';
   }
 
-  // Add markers to map
-  stations.forEach(s => {
-    var marker = L.circleMarker([s.lat, s.lon], {
-      color: getColor(s.level),
-      fillColor: getColor(s.level),
-      fillOpacity: 0.7,
-      radius: 10
-    }).addTo(map);
+  // Fetch station data from GitHub JSON
+  fetch('https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json')
+    .then(response => response.json())
+    .then(stations => {
+      stations.forEach(s => {
+        var marker = L.circleMarker([s.lat, s.lon], {
+          color: getColor(s.level),
+          fillColor: getColor(s.level),
+          fillOpacity: 0.7,
+          radius: 10
+        }).addTo(map);
 
-    marker.bindPopup("<b>" + s.name + "</b><br>Water Level: " + s.level);
-  });
+        marker.bindPopup("<b>" + s.name + "</b><br>Water Level: " + s.level);
+      });
+    })
+    .catch(err => console.error("Error loading stations JSON:", err));
 </script>
 </body>
 </html>
