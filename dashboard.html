@@ -45,7 +45,6 @@
     .then(res => res.json())
     .then(stations => {
       stations.forEach(s => {
-        // Use the last water level from the station JSON
         const level = s.level;
 
         // Add colored marker
@@ -56,22 +55,14 @@
           radius: 10
         }).addTo(map);
 
-        // Bind popup with button
+        // Bind popup with inline onclick
         marker.bindPopup(`
           <b>${s.name}</b><br>
           Water Level: ${level} m<br>
-          <button class="popup-button" id="btn-${s.slug}">📊 Open Dashboard</button>
+          <button class="popup-button" onclick="window.location.href='dashboard.html?slug=${encodeURIComponent(s.slug)}'">
+            📊 Open Dashboard
+          </button>
         `);
-
-        // Attach button click after popup opens
-        marker.on('popupopen', function() {
-          const btn = document.getElementById(`btn-${s.slug}`);
-          if (btn) {
-            btn.onclick = () => {
-              window.location.href = `dashboard.html?slug=${encodeURIComponent(s.slug)}`;
-            };
-          }
-        });
       });
     })
     .catch(err => console.error("Error loading stations:", err));
