@@ -23,19 +23,18 @@
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
-  var map = L.map('map').setView([22.0, 78.0], 5);
+  // Initialize map
+  const map = L.map('map').setView([22.0, 78.0], 5);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
+  // Color coding by water level
   function getColor(level) {
-    return level < 30 ? 'red' :
-           level < 60 ? 'orange' :
-                        'green';
+    return level < 30 ? 'red' : level < 60 ? 'orange' : 'green';
   }
 
   fetch("https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json")
@@ -44,23 +43,24 @@
       stations.forEach(s => {
         const level = s.level;
 
-        var marker = L.circleMarker([s.lat, s.lon], {
+        const marker = L.circleMarker([s.lat, s.lon], {
           color: getColor(level),
           fillColor: getColor(level),
           fillOpacity: 0.7,
           radius: 10
         }).addTo(map);
 
+        // Add popup with button
         marker.bindPopup(`
           <b>${s.name}</b><br>
           Water Level: ${level} m<br>
-          <button class="popup-button">📊 Open Dashboard</button>
+          <button class="popup-button" id="btn-${s.slug}">📊 Open Dashboard</button>
         `);
 
-        // Attach button click when popup opens
+        // Attach click handler when popup opens
         marker.on('popupopen', function(e) {
-          const popupEl = e.popup.getElement();          // Current popup DOM
-          const btn = popupEl.querySelector('.popup-button'); // Find the button
+          const popupEl = e.popup.getElement();
+          const btn = popupEl.querySelector(`#btn-${s.slug}`);
           if (btn) {
             btn.onclick = () => {
               window.location.href = `dashboard.html?slug=${encodeURIComponent(s.slug)}`;
