@@ -71,8 +71,14 @@
         const yMin = Math.floor(minLevel - 5);
         const yMax = Math.ceil(maxLevel + 5);
 
-       const ctx = document.getElementById("waterChart").getContext("2d");
+       // Prepare point colors
+const pointColors = values.map(v => {
+  if (v < 30) return "red";
+  if (v < 60) return "orange";
+  return "green";
+});
 
+const ctx = document.getElementById("waterChart").getContext("2d");
 new Chart(ctx, {
   type: "line",
   data: {
@@ -80,18 +86,12 @@ new Chart(ctx, {
     datasets: [{
       label: "Water Level (m)",
       data: values,
-      borderColor: "blue", // fallback
+      borderColor: "blue", // line color
       backgroundColor: "rgba(0,123,255,0.3)",
       fill: true,
       tension: 0.2,
-      segment: {
-        borderColor: ctx => {
-          const val = values[ctx.p0DataIndex];
-          if (val < 30) return "red";
-          if (val < 60) return "orange";
-          return "green";
-        }
-      }
+      pointBackgroundColor: pointColors, // colors each point based on value
+      pointRadius: 6
     }]
   },
   options: {
@@ -100,9 +100,16 @@ new Chart(ctx, {
       legend: { position: "top" },
       title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
     },
-    scales: { y: { beginAtZero: false, min: yMin, max: yMax } }
+    scales: {
+      y: {
+        beginAtZero: false,
+        min: yMin,
+        max: yMax
+      }
+    }
   }
 });
+
 
   }
 </script>
