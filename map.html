@@ -1,74 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Water Level Map</title>
-  <meta charset="utf-8" />
+  <title>Station Map</title>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
-    #map { height: 100vh; width: 100%; }
-    .popup-button {
-      margin-top: 5px;
-      padding: 5px 8px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 10px 0; cursor: pointer; color: blue; text-decoration: underline; }
   </style>
 </head>
 <body>
-<div id="map"></div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<h2>Groundwater Stations</h2>
+<ul id="stationList"></ul>
 
 <script>
-  var map = L.map('map').setView([22.0, 78.0], 5);
+  // 1. Station data
+  const stations = [
+    { name: "Solapur, Maharashtra", slug: "solapur" },
+    { name: "Mumbai, Maharashtra", slug: "mumbai" },
+    { name: "Delhi (New Delhi)", slug: "delhi" },
+    { name: "Dehradun, Uttarakhand", slug: "dehradun" },
+    { name: "Chennai, Tamil Nadu", slug: "chennai" },
+    { name: "Kolkata, West Bengal", slug: "kolkata" },
+    { name: "Guwahati, Assam", slug: "guwahati" },
+    { name: "Lucknow, Uttar Pradesh", slug: "lucknow" },
+    { name: "Bhopal, Madhya Pradesh", slug: "bhopal" },
+    { name: "Ahmedabad, Gujarat", slug: "ahmedabad" }
+  ];
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
-
-  function getColor(level) {
-    return level < 30 ? 'red' :
-           level < 60 ? 'orange' :
-                        'green';
-  }
-
-  fetch("https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json")
-    .then(response => response.json())
-    .then(stations => {
-      stations.forEach(s => {
-        // Add marker
-        var marker = L.circleMarker([s.lat, s.lon], {
-          color: getColor(s.level),
-          fillColor: getColor(s.level),
-          fillOpacity: 0.7,
-          radius: 10
-        }).addTo(map);
-
-        // Bind popup
-        marker.bindPopup(`
-          <b>${s.name}</b><br>
-          Water Level: ${s.level} m<br>
-          <button class="popup-button" id="btn-${s.slug}">📊 Open Dashboard</button>
-        `);
-
-        // Add click handler for the button after popup is opened
-        marker.on('popupopen', function() {
-          const btn = document.getElementById(`btn-${s.slug}`);
-          if (btn) {
-            btn.onclick = () => {
-              window.location.href = `dashboard.html?slug=${encodeURIComponent(s.slug)}`;
-            };
-          }
-        });
-      });
-    })
-    .catch(err => console.error("Error loading stations:", err));
+  // 2. Populate list
+  const ul = document.getElementById("stationList");
+  stations.forEach(station => {
+    const li = document.createElement("li");
+    li.textContent = station.name;
+    li.onclick = () => {
+      // 3. Open dashboard.html with the station slug
+      window.location.href = `dashboard.html?slug=${station.slug}`;
+    };
+    ul.appendChild(li);
+  });
 </script>
+
 </body>
 </html>
