@@ -1,8 +1,10 @@
-{"name":"Solapur",
-"history"[
-  {"date": "2025-09-01", "level": 25},
-  {"date": "2025-09-02", "level": 28},
-  {"date": "2025-09-03", "level": 30},
-  {"date": "2025-09-04", "level": 26}
-]
+{
+  "slug": "solapur",
+  "history": [
+    {"date": "2025-09-10", "level": 24},
+    {"date": "2025-09-11", "level": 25},
+    {"date": "2025-09-12", "level": 26},
+    {"date": "2025-09-13", "level": 25},
+    {"date": "2025-09-14", "level": 26}
+  ]
 }
