@@ -45,10 +45,24 @@
   const urlParams = new URLSearchParams(window.location.search);
   const slug = urlParams.get("slug");
 
+  // 2. Add station name mapping
+  const stationNames = {
+    solapur: "Solapur, Maharashtra",
+    mumbai: "Mumbai, Maharashtra",
+    delhi: "Delhi (New Delhi)",
+    dehradun: "Dehradun, Uttarakhand",
+    chennai: "Chennai, Tamil Nadu",
+    kolkata: "Kolkata, West Bengal",
+    guwahati: "Guwahati, Assam",
+    lucknow: "Lucknow, Uttar Pradesh",
+    bhopal: "Bhopal, Madhya Pradesh",
+    ahmedabad: "Ahmedabad, Gujarat"
+  };
+
   if (!slug) {
     document.getElementById("error").innerText = "❌ No station slug provided in the URL!";
   } else {
-    // 2. Fetch station data dynamically
+    // 3. Fetch station data dynamically
     const dataUrl = `https://raw.githubusercontent.com/zerobosatsu/map/main/data/${slug}.json`;
 
     fetch(dataUrl)
@@ -57,16 +71,17 @@
         return res.json();
       })
       .then(data => {
-        // Expect JSON format: { "name": "Delhi", "history": [ { "date": "2025-09-01", "level": 45 }, ... ] }
+        // Use name from JSON if available, otherwise fallback to mapping
+        const stationDisplayName = data.name || stationNames[slug] || slug;
 
         // Update title
-        document.getElementById("stationTitle").innerText = data.name + " Dashboard";
+        document.getElementById("stationTitle").innerText = stationDisplayName + " Dashboard";
 
         // Prepare chart data
         const labels = data.history.map(d => d.date);
         const values = data.history.map(d => d.level);
 
-        // 3. Create Chart
+        // 4. Create Chart
         const ctx = document.getElementById("waterChart").getContext("2d");
         new Chart(ctx, {
           type: "line",
@@ -85,7 +100,7 @@
             responsive: true,
             plugins: {
               legend: { position: "top" },
-              title: { display: true, text: `Water Level Trends for ${data.name}` }
+              title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
             },
             scales: {
               y: { beginAtZero: true }
