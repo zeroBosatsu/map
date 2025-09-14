@@ -1,10 +1,10 @@
-{"name":"Dehradun",
-"history"
-[
-  {"date": "2025-09-10", "level": 38},
-  {"date": "2025-09-11", "level": 40},
-  {"date": "2025-09-12", "level": 42},
-  {"date": "2025-09-13", "level": 39},
-  {"date": "2025-09-14", "level": 41}
-]
+{
+  "slug": "dehradun",
+  "history": [
+    {"date": "2025-09-10", "level": 39},
+    {"date": "2025-09-11", "level": 40},
+    {"date": "2025-09-12", "level": 42},
+    {"date": "2025-09-13", "level": 41},
+    {"date": "2025-09-14", "level": 41}
+  ]
 }
