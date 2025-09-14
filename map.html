@@ -5,64 +5,73 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
     #map { height: 100vh; width: 100%; }
+    .popup-button {
+      margin-top: 5px;
+      padding: 5px 8px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 <div id="map"></div>
 
-
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
+  // Initialize map
+  var map = L.map('map').setView([22.0, 78.0], 5);
 
-  var map = L.map('map').setView([22.5, 78.9], 5); 
-
-
+  // OpenStreetMap tiles
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-
+  // Function to choose color based on water level
   function getColor(level) {
     return level < 30 ? 'red' :
            level < 60 ? 'orange' :
                         'green';
   }
 
- 
+  // Function to send station slug to FlutterFlow
+  function sendStation(slug) {
+    window.flutter_inappwebview?.callHandler('stationSelected', slug);
+  }
+
+  // Fetch station data
   fetch("https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json") 
     .then(response => response.json())
     .then(stations => {
-stations.forEach(s => {
-  var marker = L.circleMarker([s.lat, s.lon], {
-    color: getColor(s.level),
-    fillColor: getColor(s.level),
-    fillOpacity: 0.7,
-    radius: 10
-  }).addTo(map);
+      stations.forEach(s => {
+        // Add marker
+        var marker = L.circleMarker([s.lat, s.lon], {
+          color: getColor(s.level),
+          fillColor: getColor(s.level),
+          fillOpacity: 0.7,
+          radius: 10
+        }).addTo(map);
 
-  marker.bindPopup(`
-    <b>${s.name}</b><br>
-    Water Level: ${s.level}<br>
-    <button onclick="sendStation('${s.slug}')">📊 Open Dashboard</button>
-  `);
-});
-
-function sendStation(slug) {
-  window.flutter_inappwebview?.callHandler('stationSelected', slug);
-}
-
-
+        // Add popup with button
+        marker.bindPopup(`
+          <b>${s.name}</b><br>
+          Water Level: ${s.level}<br>
+          <button class="popup-button" onclick="sendStation('${s.slug}')">
+            📊 Open Dashboard
+          </button>
+        `);
       });
     })
     .catch(err => console.error("Error loading stations:", err));
 </script>
 </body>
 </html>
-
-
