@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Water Level Dashboard</title>
+  <meta charset="utf-8" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1 id="stationName">Loading...</h1>
+  <canvas id="waterChart" width="400" height="200"></canvas>
+
+  <script>
+    // 1. Get slug from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get("station");
+
+    // 2. Fetch stations data
+    fetch('https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json')
+      .then(res => res.json())
+      .then(stations => {
+        const station = stations.find(s => s.slug === slug);
+        if (!station) {
+          document.getElementById("stationName").innerText = "Station Not Found";
+          return;
+        }
+
+        // Update heading
+        document.getElementById("stationName").innerText = station.name;
+
+        // 3. Load water level time-series (mocked here, but can be separate JSON per station)
+        // Example: you keep a file like "solapur_data.json", "mumbai_data.json"
+        fetch(`https://raw.githubusercontent.com/zerobosatsu/map/main/data/${station.slug}.json`)
+          .then(res => res.json())
+          .then(levels => {
+            // 4. Draw chart
+            const ctx = document.getElementById('waterChart').getContext('2d');
+            new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: levels.map(d => d.date),
+                datasets: [{
+                  label: "Water Level",
+                  data: levels.map(d => d.level),
+                  borderColor: "blue",
+                  fill: false
+                }]
+              }
+            });
+          });
+      });
+  </script>
+</body>
+</html>
