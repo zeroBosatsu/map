@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Leaflet CSS -->
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
     #map { height: 100vh; width: 100%; }
@@ -14,28 +14,28 @@
 <body>
 <div id="map"></div>
 
-<!-- Leaflet JS -->
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-  // Initialize map
-  var map = L.map('map').setView([22.5, 78.9], 5); // Centered on India
 
-  // Add OpenStreetMap tiles
+  var map = L.map('map').setView([22.5, 78.9], 5); 
+
+
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // Function to get marker color based on level
+
   function getColor(level) {
     return level < 30 ? 'red' :
            level < 60 ? 'orange' :
                         'green';
   }
 
-  // Fetch station data dynamically
-  fetch("https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json") // change this URL
+ 
+  fetch("https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json") 
     .then(response => response.json())
     .then(stations => {
       stations.forEach(s => {
@@ -46,15 +46,17 @@
           radius: 10
         }).addTo(map);
 
-        // Popup with deep link
-        marker.bindPopup(`
-          <b>${s.name}</b><br>
-          Water Level: ${s.level}<br>
-          <a href="flutterflow://station/${s.slug}">📊 Open Dashboard</a>
-        `);
+        
+marker.bindPopup(`
+  <b>${s.name}</b><br>
+  Water Level: ${s.level}<br>
+  <a href="#station=${s.slug}">📊 Open Dashboard</a>
+`);
+
       });
     })
     .catch(err => console.error("Error loading stations:", err));
 </script>
 </body>
 </html>
+
