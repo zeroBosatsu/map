@@ -40,25 +40,26 @@
   };
 
   if (!slug) {
-    document.getElementById("error").innerText = "❌ No station slug provided in the URL!";
+    document.getElementById("error").innerText = "❌ No station slug provided!";
   } else {
     const dataUrl = `https://raw.githubusercontent.com/zerobosatsu/map/main/data/${slug}.json`;
 
     fetch(dataUrl)
       .then(res => res.ok ? res.json() : Promise.reject("Station data not found"))
       .then(data => {
+        if (!data.history || data.history.length === 0) {
+          throw "No history data available!";
+        }
+
         const stationDisplayName = data.name || stationNames[slug] || slug;
         document.getElementById("stationTitle").innerText = stationDisplayName + " Dashboard";
 
-        // Sanitize data
-        const filteredHistory = data.history.filter(d => d.level !== null && d.level !== undefined);
-        const labels = filteredHistory.map(d => d.date);
-        const values = filteredHistory.map(d => Number(d.level));
+        // Filter numeric levels
+        const filtered = data.history.filter(d => !isNaN(Number(d.level)));
+        const labels = filtered.map(d => d.date);
+        const values = filtered.map(d => Number(d.level));
 
-        if (values.length === 0) {
-          document.getElementById("error").innerText = "⚠️ No valid water level data available!";
-          return;
-        }
+        if (values.length === 0) throw "No valid numeric water levels!";
 
         // Last recorded level
         const lastLevel = values[values.length - 1];
@@ -80,16 +81,9 @@
               label: "Water Level (m)",
               data: values,
               fill: true,
-              backgroundColor: "rgba(0,123,255,0.1)",
               tension: 0.2,
-              segment: {
-                borderColor: ctx => {
-                  const yVal = ctx.p0.parsed.y;
-                  if (yVal < 30) return "red";
-                  if (yVal < 60) return "orange";
-                  return "green";
-                }
-              },
+              borderColor: "blue",
+              backgroundColor: "rgba(0,123,255,0.1)",
               pointBackgroundColor: values.map(v => v < 30 ? "red" : v < 60 ? "orange" : "green"),
               pointRadius: 5
             }]
@@ -100,18 +94,15 @@
               legend: { position: "top" },
               title: { display: true, text: `Water Level Trends for ${stationDisplayName}` }
             },
-            scales: {
-              y: { beginAtZero: false, min: yMin, max: yMax }
-            }
+            scales: { y: { beginAtZero: false, min: yMin, max: yMax } }
           }
         });
       })
       .catch(err => {
         console.error(err);
-        document.getElementById("error").innerText = "⚠️ Failed to load station data.";
+        document.getElementById("error").innerText = "⚠️ Failed to load station data or invalid data!";
       });
   }
 </script>
-
 </body>
 </html>
