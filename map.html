@@ -38,20 +38,25 @@
   fetch("https://raw.githubusercontent.com/zerobosatsu/map/main/stations.json") 
     .then(response => response.json())
     .then(stations => {
-      stations.forEach(s => {
-        var marker = L.circleMarker([s.lat, s.lon], {
-          color: getColor(s.level),
-          fillColor: getColor(s.level),
-          fillOpacity: 0.7,
-          radius: 10
-        }).addTo(map);
+stations.forEach(s => {
+  var marker = L.circleMarker([s.lat, s.lon], {
+    color: getColor(s.level),
+    fillColor: getColor(s.level),
+    fillOpacity: 0.7,
+    radius: 10
+  }).addTo(map);
 
-        
-marker.bindPopup(`
-  <b>${s.name}</b><br>
-  Water Level: ${s.level}<br>
-  <a href="#station=${s.slug}">📊 Open Dashboard</a>
-`);
+  marker.bindPopup(`
+    <b>${s.name}</b><br>
+    Water Level: ${s.level}<br>
+    <button onclick="sendStation('${s.slug}')">📊 Open Dashboard</button>
+  `);
+});
+
+function sendStation(slug) {
+  window.flutter_inappwebview?.callHandler('stationSelected', slug);
+}
+
 
       });
     })
@@ -59,4 +64,5 @@ marker.bindPopup(`
 </script>
 </body>
 </html>
+
 
